@@ -4,6 +4,7 @@ const
   mongoose = require('mongoose'),
   config = require('./config'),
   users = require('./routes/users'),
+  things = require('./routes/things'),
   app = express();
 
 app.use(express.json());
@@ -11,7 +12,7 @@ app.use(express.static('public'));
 app.use(cors());
 
 const run = async () => {
-  await mongoose.connect('mongodb://localhost:27017/myApp',
+  await mongoose.connect('mongodb://localhost/myApp',
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -19,7 +20,7 @@ const run = async () => {
     });
 
   app.use('/users', users);
-  // app.use('/posts', posts);
+  app.use('/things', things);
   // app.use('/comments', comments);
 
   app.listen(config.port, () => {
