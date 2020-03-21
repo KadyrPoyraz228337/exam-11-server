@@ -3,6 +3,7 @@ const
   cors = require('cors'),
   mongoose = require('mongoose'),
   config = require('./config'),
+  users = require('./routes/users'),
   app = express();
 
 app.use(express.json());
@@ -13,8 +14,14 @@ const run = async () => {
   await mongoose.connect('mongodb://localhost:27017/myApp',
     {
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      useCreateIndex: true
     });
+
+  app.use('/users', users);
+  // app.use('/posts', posts);
+  // app.use('/comments', comments);
+
   app.listen(config.port, () => {
     console.log(`HTTP server start on ${config.port} port!`);
   })
