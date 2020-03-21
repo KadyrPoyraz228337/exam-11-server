@@ -82,7 +82,9 @@ module.exports = class AuthService {
         if(!user) resolve(message);
 
         user.token = this.createToken();
-        user.save();
+        await user.save();
+
+        resolve(message);
       } catch (e) {
         reject(e)
       }
