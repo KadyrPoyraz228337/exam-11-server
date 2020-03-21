@@ -26,7 +26,8 @@ module.exports = class AuthService {
           });
           resolve({
             user: {
-              username: user.username
+              username: user.username,
+              email: user.email
             },
             token
           });
@@ -71,16 +72,20 @@ module.exports = class AuthService {
 
   async logout(token) {
     return new Promise(async (resolve, reject) => {
-      const message = {message: 'Logout success'};
+      try {
+        const message = {message: 'Logout success'};
 
-      if(!token) resolve(message);
+        if(!token) resolve(message);
 
-      const user = await User.findOne({token});
+        const user = await User.findOne({token});
 
-      if(!user) resolve(message);
+        if(!user) resolve(message);
 
-      user.token = this.createToken();
-      user.save();
+        user.token = this.createToken();
+        user.save();
+      } catch (e) {
+        reject(e)
+      }
     })
   }
 
