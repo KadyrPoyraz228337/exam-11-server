@@ -8,26 +8,30 @@ module.exports = class AuthService {
   constructor() {
   }
 
-  async login(email, password) {
+  async login(username, password) {
     return new Promise(async (resolve, reject) => {
       try {
-        const user = await User.findOne({email});
+        if(!username || !password) {
+          return reject({message: 'all fields must be filled!'})
+        }
+        const user = await User.findOne({username});
         if (!user) {
-          return reject('Username or password not correct!')
+          return reject({message: 'Username or password not correct!'})
         } else {
           const correctPassword = await argon2.verify(user.password, password);
           if (!correctPassword) {
-            return reject('Username or password not correct!')
+            return reject({message: 'Username or password not correct!'})
           }
 
           const token = this.createToken();
-          await User.update({email}, {
+          await User.update({username}, {
             token: token
           });
           resolve({
             user: {
               username: user.username,
-              email: user.email
+              displayName: user.displayName,
+              number: user.number
             },
             token
           });
@@ -39,11 +43,14 @@ module.exports = class AuthService {
   }
 
 
-  async sigUp(username, email, password) {
+  async sigUp(username, password, displayName, number) {
     return new Promise(async (resolve, reject) => {
       try {
-        if (!username || !email || !password) {
-          return reject('Password or username or email not found!');
+        if (!username || !password || !displayName || !number) {
+          return reject({message: 'all fields must be filled!'});
+        }
+        if(username.length <= 3 || displayName.length <= 3) {
+          return reject({message: 'username or displayName must be at least 3 characters long!'});
         }
 
         const salt = randomBytes(32);
@@ -53,18 +60,23 @@ module.exports = class AuthService {
         const user = await User.create({
           password: hashedPassword,
           username: username,
-          email: email,
+          displayName: displayName,
+          number: number,
           token: token
         });
 
         return resolve({
           user: {
             username: user.username,
-            email: user.email
+            displayName: user.displayName,
+            number: user.number
           },
           token
         })
       } catch (e) {
+        if(e.name === 'MongoError') {
+          return reject({message: `${JSON.stringify(e.keyValue)} field is occupied`})
+        }
         reject(e)
       }
     })

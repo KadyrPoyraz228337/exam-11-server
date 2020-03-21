@@ -8,10 +8,11 @@ router.post('/', async (req, res) => {
     const
       username = req.body.username,
       password = req.body.password,
-      email = req.body.email;
+      displayName = req.body.displayName,
+      number = req.body.number;
 
     const auth = new AuthService();
-    const {user, token} = await auth.sigUp(username, email, password);
+    const {user, token} = await auth.sigUp(username, password, displayName, number);
 
     res.send({user, token})
   } catch (e) {
@@ -22,10 +23,10 @@ router.post('/', async (req, res) => {
 router.post('/sessions', async (req, res) => {
   const
     password = req.body.password,
-    email = req.body.email;
+    username = req.body.username;
   try {
     const service = new AuthService();
-    const {user, token} = await service.login(email, password);
+    const {user, token} = await service.login(username, password);
 
     return res.send({user, token});
   } catch (error) {
